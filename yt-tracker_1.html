@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YT Трекер">
+<meta name="theme-color" content="#ff0000">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF0000'/%3E%3Cpath d='M78 50c0 0-0.7-4.9-2.8-7.1-2.7-2.8-5.7-2.8-7.1-3C61.4 39.4 50 39.4 50 39.4s-11.4 0-18.1.5c-1.4.1-4.4.2-7.1 3C22.7 45.1 22 50 22 50s-.7 5.1-.7 10.2v4.8c0 5.1.7 10.2.7 10.2s.7 4.9 2.8 7.1c2.7 2.8 6.3 2.7 7.9 3 5.7.5 24.3.7 24.3.7s11.4 0 18.1-.5c1.4-.1 4.4-.2 7.1-3 2.1-2.2 2.8-7.1 2.8-7.1S78.7 65.3 78.7 60.2V55.4C78.7 50.3 78 50 78 50zM43.6 60.2V44.9l19.2 7.7-19.2 7.6z' fill='white'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF0000'/%3E%3Cpath d='M78 50c0 0-0.7-4.9-2.8-7.1-2.7-2.8-5.7-2.8-7.1-3C61.4 39.4 50 39.4 50 39.4s-11.4 0-18.1.5c-1.4.1-4.4.2-7.1 3C22.7 45.1 22 50 22 50s-.7 5.1-.7 10.2v4.8c0 5.1.7 10.2.7 10.2s.7 4.9 2.8 7.1c2.7 2.8 6.3 2.7 7.9 3 5.7.5 24.3.7 24.3.7s11.4 0 18.1-.5c1.4-.1 4.4-.2 7.1-3 2.1-2.2 2.8-7.1 2.8-7.1S78.7 65.3 78.7 60.2V55.4C78.7 50.3 78 50 78 50zM43.6 60.2V44.9l19.2 7.7-19.2 7.6z' fill='white'/%3E%3C/svg%3E">
+<title>YT Трекер — Леонид</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0a;
+  --surface:#141414;
+  --surface2:#1e1e1e;
+  --border:#2a2a2a;
+  --text:#f0f0f0;
+  --muted:#666;
+  --accent:#ff4d00;
+  --accent2:#ffb800;
+  --green:#00c96e;
+  --blue:#3b82f6;
+  --r:12px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overscroll-behavior:none}
+body{display:flex;flex-direction:column;max-width:480px;margin:0 auto;min-height:100dvh}
+
+/* NAV */
+nav{display:flex;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;padding:0 4px}
+nav button{flex:1;background:none;border:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:14px 4px 12px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.03em}
+nav button.active{color:var(--text);border-bottom-color:var(--accent)}
+
+/* PAGES */
+.page{display:none;flex:1;overflow-y:auto;padding:16px;padding-bottom:40px}
+.page.active{display:block}
+
+/* TYPOGRAPHY */
+.display{font-family:'Unbounded',sans-serif;font-weight:800;font-size:28px;line-height:1.1;letter-spacing:-.02em}
+.label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+/* HERO */
+.hero{background:var(--surface);border-radius:var(--r);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:var(--accent);opacity:.06;border-radius:50%}
+.hero-date{font-size:12px;color:var(--muted);margin-bottom:8px}
+.hero-count{font-family:'Unbounded',sans-serif;font-size:52px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-.04em}
+.hero-label{font-size:13px;color:var(--muted);margin-top:4px}
+.hero-sub{display:flex;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.hero-sub-item{display:flex;flex-direction:column;gap:2px}
+.hero-sub-num{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:600}
+.hero-sub-label{font-size:11px;color:var(--muted)}
+
+/* PROGRESS BAR */
+.prog-wrap{margin:12px 0 0}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:6px}
+.prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s ease;background:var(--accent)}
+.prog-fill.green{background:var(--green)}
+.prog-fill.blue{background:var(--blue)}
+
+/* CARDS GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-card{background:var(--surface);border-radius:var(--r);padding:14px}
+.stat-num{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:700;margin:6px 0 2px}
+.stat-diff{font-size:11px}
+.stat-diff.up{color:var(--green)}
+.stat-diff.down{color:#ff4d4d}
+
+/* SECTION */
+.section{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.section-title{font-size:13px;font-weight:500;color:var(--text)}
+.section-action{font-size:12px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;padding:0}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .2s}
+.check-item:last-child{border-bottom:none;padding-bottom:0}
+.check-item.done{opacity:.45}
+.check-box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.check-item.done .check-box{background:var(--green);border-color:var(--green)}
+.check-tick{width:10px;height:10px;display:none}
+.check-item.done .check-tick{display:block}
+.check-tick::before,.check-tick::after{content:'';position:absolute;background:#000;border-radius:1px}
+.check-tick-svg{width:10px;height:10px}
+.check-text{font-size:14px;line-height:1.4}
+.check-item.done .check-text{text-decoration:line-through;color:var(--muted)}
+.check-badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.badge-red{background:rgba(255,77,0,.15);color:var(--accent)}
+.badge-yellow{background:rgba(255,184,0,.15);color:var(--accent2)}
+
+/* VIDEO WEEK */
+.week-item{padding:12px 0;border-bottom:1px solid var(--border)}
+.week-item:last-child{border-bottom:none}
+.week-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.week-num{font-size:11px;color:var(--muted);flex-shrink:0;margin-top:2px}
+.week-title{font-size:14px;font-weight:500;line-height:1.4;flex:1}
+.week-status{width:24px;height:24px;border-radius:6px;flex-shrink:0;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s}
+.week-status.published{background:var(--green);border-color:var(--green);color:#000}
+.week-status.filming{background:rgba(255,184,0,.2);border-color:var(--accent2)}
+.week-deadline{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* STREAK */
+.streak-grid{display:flex;gap:4px;flex-wrap:wrap}
+.streak-dot{width:28px;height:28px;border-radius:6px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);cursor:pointer;transition:all .2s;flex-direction:column;gap:1px}
+.streak-dot.done{background:rgba(0,201,110,.25);color:var(--green)}
+.streak-dot.today{border:1.5px solid var(--accent2)}
+.streak-dot-day{font-size:8px}
+
+/* TELEGRAM BTN */
+.tg-btn{display:flex;align-items:center;gap:10px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);border-radius:var(--r);padding:14px 16px;cursor:pointer;text-decoration:none;color:var(--text);transition:all .2s;width:100%;margin-bottom:10px}
+.tg-btn:active{background:rgba(59,130,246,.2)}
+.tg-icon{width:32px;height:32px;background:#2AABEE;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tg-btn-text{font-size:14px;font-weight:500}
+.tg-btn-sub{font-size:11px;color:var(--muted)}
+
+/* YT SECTION */
+.yt-connect{background:var(--surface);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:12px}
+.yt-connect p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.yt-form{display:flex;flex-direction:column;gap:8px}
+.yt-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:10px 12px;outline:none;transition:border .2s}
+.yt-input:focus{border-color:var(--accent)}
+.yt-input::placeholder{color:var(--muted)}
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:600;padding:12px;cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;padding:10px 12px;cursor:pointer;transition:all .2s;width:100%;margin-top:4px}
+.yt-live{display:none}
+.yt-live.shown{display:block}
+.yt-channel{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.yt-avatar{width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.yt-channel-name{font-weight:500;font-size:15px}
+.yt-channel-handle{font-size:12px;color:var(--muted)}
+.yt-refresh{font-size:12px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;margin-left:auto;padding:0}
+.error-msg{font-size:12px;color:#ff4d4d;text-align:center;margin-top:8px;display:none}
+
+/* INPUT MANUAL */
+.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.m-input-wrap{display:flex;flex-direction:column;gap:4px}
+.m-label{font-size:11px;color:var(--muted)}
+
+/* SETTINGS */
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px}
+.settings-val{font-size:13px;color:var(--muted)}
+.toggle{width:44px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.toggle.on::after{transform:translateX(20px)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s ease;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:fadeIn .25s ease}
+
+/* CONFETTI spark */
+.spark{position:fixed;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:998;animation:sparkFly .8s ease forwards}
+@keyframes sparkFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.2)}}
+
+/* SCROLLBAR */
+.page::-webkit-scrollbar{width:3px}
+.page::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="active" onclick="showPage('dash')">Дашборд</button>
+  <button onclick="showPage('videos')">Видео</button>
+  <button onclick="showPage('stats')">Статистика</button>
+  <button onclick="showPage('links')">Быстрые</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="page-dash" class="page active">
+
+  <div class="hero">
+    <div class="hero-date" id="heroDate"></div>
+    <div class="hero-count" id="heroVideos">0</div>
+    <div class="hero-label">видео опубликовано</div>
+    <div class="hero-sub">
+      <div class="hero-sub-item">
+        <span class="hero-sub-num" id="heroStreak" style="color:var(--accent2)">0</span>
+        <span class="hero-sub-label">дней подряд</span>
+      </div>
+      <div class="hero-sub-item">
+        <span class="hero-sub-num" id="heroLeft" style="color:var(--green)">8</span>
+        <span class="hero-sub-label">до конца движухи</span>
+      </div>
+      <div class="hero-sub-item">
+        <span class="hero-sub-num" id="heroDays" style="color:var(--blue)">62</span>
+        <span class="hero-sub-label">дней осталось</span>
+      </div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-row">
+        <span class="label">Прогресс движухи</span>
+        <span id="progPct" style="font-size:12px;color:var(--muted)">0%</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="progBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="stat-card">
+      <div class="label">Подписчики</div>
+      <div class="stat-num" id="dashSubs">—</div>
+      <div class="stat-diff up" id="dashSubsDiff"></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Просмотры</div>
+      <div class="stat-num" id="dashViews">—</div>
+      <div class="stat-diff up" id="dashViewsDiff"></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Часы просмотра</div>
+      <div class="stat-num" id="dashHours">—</div>
+      <div class="stat-diff" id="dashHoursDiff"></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">До монетизации</div>
+      <div class="stat-num" id="dashMon">—</div>
+      <div class="stat-diff" id="dashMonLabel" style="color:var(--muted)"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Чеклист недели</span>
+      <button class="section-action" onclick="resetWeekly()">сбросить</button>
+    </div>
+    <div id="checkList"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Активность (30 дней)</span>
+    </div>
+    <div class="streak-grid" id="streakGrid"></div>
+  </div>
+
+</div>
+
+<!-- VIDEOS PAGE -->
+<div id="page-videos" class="page">
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">План на июнь — 4 видео</span>
+      <button class="section-action" onclick="addVideo()">+ добавить</button>
+    </div>
+    <div id="videoList"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Чеклист публикации</span>
+    </div>
+    <div id="pubChecklist"></div>
+  </div>
+</div>
+
+<!-- STATS PAGE -->
+<div id="page-stats" class="page">
+
+  <div class="section" id="ytConnectSection">
+    <div class="section-head">
+      <span class="section-title">YouTube канал</span>
+    </div>
+
+    <div id="ytSetup">
+      <div class="yt-connect" style="background:none;padding:0">
+        <p>Вставь свой YouTube API Key и Channel ID чтобы автоматически подтягивать статистику</p>
+        <div class="yt-form">
+          <input class="yt-input" id="ytApiKey" placeholder="YouTube Data API v3 Key" type="password">
+          <input class="yt-input" id="ytChannelId" placeholder="Channel ID (UCxxxxx...)">
+          <div style="font-size:11px;color:var(--muted);text-align:left;line-height:1.6">
+            Получить ключ: <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent)">console.cloud.google.com</a> → YouTube Data API v3 → Credentials
+          </div>
+          <button class="btn-primary" onclick="connectYT()">Подключить</button>
+          <div id="ytError" class="error-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="yt-live" id="ytLive">
+      <div class="yt-channel">
+        <div class="yt-avatar" id="ytAvatarLetter">Л</div>
+        <div>
+          <div class="yt-channel-name" id="ytChannelName">—</div>
+          <div class="yt-channel-handle" id="ytChannelHandle">—</div>
+        </div>
+        <button class="yt-refresh" onclick="refreshYT()">↻ обновить</button>
+      </div>
+      <div class="grid2" style="margin-bottom:0">
+        <div class="stat-card">
+          <div class="label">Подписчики</div>
+          <div class="stat-num" id="ytSubs">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Просмотры всего</div>
+          <div class="stat-num" id="ytViews">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Видео на канале</div>
+          <div class="stat-num" id="ytVidCount">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Обновлено</div>
+          <div class="stat-num" style="font-size:13px" id="ytUpdated">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Ввести вручную</span>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Обновляй цифры раз в неделю из YouTube Studio</p>
+    <div class="manual-grid">
+      <div class="m-input-wrap">
+        <div class="m-label">Подписчики</div>
+        <input class="yt-input" id="mSubs" placeholder="0" type="number" oninput="saveManual()">
+      </div>
+      <div class="m-input-wrap">
+        <div class="m-label">Просмотры</div>
+        <input class="yt-input" id="mViews" placeholder="0" type="number" oninput="saveManual()">
+      </div>
+      <div class="m-input-wrap">
+        <div class="m-label">Часы просмотра</div>
+        <input class="yt-input" id="mHours" placeholder="0" type="number" oninput="saveManual()">
+      </div>
+      <div class="m-input-wrap">
+        <div class="m-label">Видео опубликовано</div>
+        <input class="yt-input" id="mVideos" placeholder="0" type="number" oninput="saveManual()">
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="prog-row" style="display:flex;justify-content:space-between">
+        <span class="label">До монетизации — подписчики</span>
+        <span id="moSubsPct" style="font-size:11px;color:var(--muted)">0/1000</span>
+      </div>
+      <div class="prog-bar" style="margin-bottom:8px"><div class="prog-fill green" id="moSubsBar" style="width:0%"></div></div>
+      <div class="prog-row" style="display:flex;justify-content:space-between">
+        <span class="label">До монетизации — часы</span>
+        <span id="moHoursPct" style="font-size:11px;color:var(--muted)">0/4000</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill blue" id="moHoursBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUICK LINKS -->
+<div id="page-links" class="page">
+
+  <a class="tg-btn" href="https://t.me/+NyEhAlPf0RAyM2Yy" target="_blank">
+    <div class="tg-icon">
+      <svg width="18" height="15" fill="#fff" viewBox="0 0 24 20"><path d="M22.05 1.56L1.6 9.7c-1.4.56-1.39 1.35-.26 1.7l5.1 1.6 11.8-7.44c.56-.35 1.07-.16.65.22L7.35 15.3H7.34l-.38 5.26c.56 0 .8-.25 1.1-.54l2.65-2.57 5.5 4.06c1 .56 1.73.27 1.98-.94l3.58-16.88c.36-1.47-.56-2.14-1.72-1.13z"/></svg>
+    </div>
+    <div>
+      <div class="tg-btn-text">Чат YouTube Движуха</div>
+      <div class="tg-btn-sub">Открыть группу Леонида</div>
+    </div>
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto;color:var(--muted)"><path d="M7 17L17 7M7 7h10v10"/></svg>
+  </a>
+
+  <a class="tg-btn" href="https://t.me/kazak_shimanskiy" target="_blank">
+    <div class="tg-icon" style="background:#2AABEE">
+      <svg width="18" height="15" fill="#fff" viewBox="0 0 24 20"><path d="M22.05 1.56L1.6 9.7c-1.4.56-1.39 1.35-.26 1.7l5.1 1.6 11.8-7.44c.56-.35 1.07-.16.65.22L7.35 15.3H7.34l-.38 5.26c.56 0 .8-.25 1.1-.54l2.65-2.57 5.5 4.06c1 .56 1.73.27 1.98-.94l3.58-16.88c.36-1.47-.56-2.14-1.72-1.13z"/></svg>
+    </div>
+    <div>
+      <div class="tg-btn-text">Написать Леониду</div>
+      <div class="tg-btn-sub">@kazak_shimanskiy — куратор</div>
+    </div>
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto;color:var(--muted)"><path d="M7 17L17 7M7 7h10v10"/></svg>
+  </a>
+
+  <a class="tg-btn" href="https://studio.youtube.com" target="_blank" style="background:rgba(255,77,0,.08);border-color:rgba(255,77,0,.3)">
+    <div class="tg-icon" style="background:#ff0000">
+      <svg width="18" height="13" fill="#fff" viewBox="0 0 24 17"><path d="M23.5 2.7S23.2.9 22.4.1c-.9-1-1.9-1-2.3-1C16.9-1 12 0 12 0S7.1-1 4 0C3.5 0 2.5 0 1.6 1 .8 1.9.5 2.7.5 2.7S.2 4.7.2 6.8v1.9c0 2 .3 4.1.3 4.1s.3 1.8 1.1 2.5c1 1.1 2.3.9 2.9 1C6.5 16.6 12 16.8 12 16.8s4.9 0 8.1-1c.5-.1 1.4-.1 2.3-1.1.8-.8 1.1-2.5 1.1-2.5s.3-2 .3-4.1V6.7c-.1-2-.4-4-.3-4zm-14 8.5V4.9l6.2 3.2-6.2 3.1z"/></svg>
+    </div>
+    <div>
+      <div class="tg-btn-text">YouTube Studio</div>
+      <div class="tg-btn-sub">Статистика и управление</div>
+    </div>
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto;color:var(--muted)"><path d="M7 17L17 7M7 7h10v10"/></svg>
+  </a>
+
+  <a class="tg-btn" href="https://www.youtube.com/@LeoKazak" target="_blank" style="background:rgba(255,77,0,.08);border-color:rgba(255,77,0,.3)">
+    <div class="tg-icon" style="background:#ff0000">
+      <svg width="18" height="13" fill="#fff" viewBox="0 0 24 17"><path d="M23.5 2.7S23.2.9 22.4.1c-.9-1-1.9-1-2.3-1C16.9-1 12 0 12 0S7.1-1 4 0C3.5 0 2.5 0 1.6 1 .8 1.9.5 2.7.5 2.7S.2 4.7.2 6.8v1.9c0 2 .3 4.1.3 4.1s.3 1.8 1.1 2.5c1 1.1 2.3.9 2.9 1C6.5 16.6 12 16.8 12 16.8s4.9 0 8.1-1c.5-.1 1.4-.1 2.3-1.1.8-.8 1.1-2.5 1.1-2.5s.3-2 .3-4.1V6.7c-.1-2-.4-4-.3-4zm-14 8.5V4.9l6.2 3.2-6.2 3.1z"/></svg>
+    </div>
+    <div>
+      <div class="tg-btn-text">Канал Леонида</div>
+      <div class="tg-btn-sub">@LeoKazak — смотреть примеры</div>
+    </div>
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto;color:var(--muted)"><path d="M7 17L17 7M7 7h10v10"/></svg>
+  </a>
+
+  <div class="section">
+    <div class="section-head"><span class="section-title">Добавить на главный экран</span></div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px">
+      iPhone: Safari → кнопка "Поделиться" → "На экран Домой"<br>
+      Android: Chrome → меню "⋮" → "Добавить на главный экран"
+    </p>
+    <div style="background:var(--surface2);border-radius:8px;padding:12px;font-size:12px;color:var(--muted);line-height:1.7">
+      После добавления трекер открывается как полноэкранное приложение. Все данные сохраняются локально на устройстве.
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+const S = {
+  get(k,d){try{return JSON.parse(localStorage.getItem('yt_'+k))||d}catch{return d}},
+  set(k,v){localStorage.setItem('yt_'+k,JSON.stringify(v))}
+};
+
+const WEEKLY_CHECKS = [
+  {id:'w1',text:'Сценарий написан',badge:'',badgeClass:''},
+  {id:'w2',text:'Видео снято',badge:'',badgeClass:''},
+  {id:'w3',text:'Монтаж готов',badge:'',badgeClass:''},
+  {id:'w4',text:'Обложка читается за 1 сек',badge:'',badgeClass:''},
+  {id:'w5',text:'Таймкоды проставлены',badge:'',badgeClass:''},
+  {id:'w6',text:'Видео опубликовано до вторника 21:00',badge:'дедлайн',badgeClass:'badge-red'},
+  {id:'w7',text:'Отчитался в чат движухи',badge:'',badgeClass:''},
+  {id:'w8',text:'Посмотрел видео других участников',badge:'',badgeClass:''},
+  {id:'w9',text:'Пришёл на созвон в среду 20:00',badge:'обязательно',badgeClass:'badge-yellow'},
+  {id:'w10',text:'Обновил статистику вручную',badge:'',badgeClass:''},
+];
+
+const PUB_CHECKS = [
+  {id:'p1',text:'Название содержит боль/цифру/интригу'},
+  {id:'p2',text:'Обложка — крупный шрифт, лицо или образ'},
+  {id:'p3',text:'Первые 30 сек: начало с боли зрителя'},
+  {id:'p4',text:'Описание заполнено (хотя бы 3 абзаца)'},
+  {id:'p5',text:'Теги прописаны (10-15 штук)'},
+  {id:'p6',text:'Таймкоды добавлены в описание'},
+  {id:'p7',text:'Закреплённый комментарий оставлен'},
+  {id:'p8',text:'Добавлен в плейлист'},
+  {id:'p9',text:'Выложен шорт-нарезка (через vizard.ai)'},
+  {id:'p10',text:'Пост в Telegram с ссылкой'},
+];
+
+const DEFAULT_VIDEOS = [
+  {id:'v1',title:'Разбор ЕС-клиники Гребенюка: что он делает правильно и что я бы добавил',deadline:'Неделя 1 — вторник',status:'none'},
+  {id:'v2',title:'Как я открыл бы премиальную клинику в Москве: 3 нестандартных хода',deadline:'Неделя 2 — вторник',status:'none'},
+  {id:'v3',title:'Почему клиника с хорошими врачами проигрывает конкурентам',deadline:'Неделя 3 — вторник',status:'none'},
+  {id:'v4',title:'Я начал YouTube и вот что понял за месяц',deadline:'Неделя 4 — вторник',status:'none'},
+];
+
+// ===== INIT =====
+function init(){
+  updateHeroDate();
+  renderWeeklyChecklist();
+  renderPubChecklist();
+  renderVideoList();
+  renderStreak();
+  updateDashStats();
+  loadManualInputs();
+  loadYTState();
+  updateMonProgress();
+  setInterval(updateHeroDate, 60000);
+}
+
+function updateHeroDate(){
+  const d = new Date();
+  const days = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  document.getElementById('heroDate').textContent = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+
+  // days left in movement (started June 1, ends Aug 1)
+  const start = new Date('2026-06-01');
+  const end = new Date('2026-08-01');
+  const now = new Date();
+  const total = (end - start) / 86400000;
+  const elapsed = Math.max(0, (now - start) / 86400000);
+  const left = Math.max(0, Math.ceil((end - now) / 86400000));
+  document.getElementById('heroDays').textContent = left;
+
+  const pct = Math.min(100, Math.round((elapsed / total) * 100));
+  document.getElementById('progBar').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+}
+
+// ===== CHECKLIST =====
+function renderWeeklyChecklist(){
+  const done = S.get('weekly_done', {});
+  const el = document.getElementById('checkList');
+  el.innerHTML = WEEKLY_CHECKS.map(c => `
+    <div class="check-item${done[c.id]?' done':''}" onclick="toggleCheck('${c.id}',this)">
+      <div class="check-box">
+        ${done[c.id]?`<svg class="check-tick-svg" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
+      </div>
+      <span class="check-text">${c.text}</span>
+      ${c.badge?`<span class="check-badge ${c.badgeClass}">${c.badge}</span>`:''}
+    </div>
+  `).join('');
+}
+
+function renderPubChecklist(){
+  const done = S.get('pub_done', {});
+  const el = document.getElementById('pubChecklist');
+  el.innerHTML = PUB_CHECKS.map(c => `
+    <div class="check-item${done[c.id]?' done':''}" onclick="togglePubCheck('${c.id}',this)">
+      <div class="check-box">
+        ${done[c.id]?`<svg class="check-tick-svg" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 2.5L9 1" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
+      </div>
+      <span class="check-text">${c.text}</span>
+    </div>
+  `).join('');
+}
+
+function toggleCheck(id, el){
+  const done = S.get('weekly_done', {});
+  done[id] = !done[id];
+  S.set('weekly_done', done);
+  if(done[id]) spawnConfetti(el);
+  renderWeeklyChecklist();
+  updateDashStats();
+}
+
+function togglePubCheck(id, el){
+  const done = S.get('pub_done', {});
+  done[id] = !done[id];
+  S.set('pub_done', done);
+  if(done[id]) spawnConfetti(el);
+  renderPubChecklist();
+}
+
+function resetWeekly(){
+  S.set('weekly_done', {});
+  renderWeeklyChecklist();
+  showToast('Чеклист сброшен');
+}
+
+// ===== VIDEOS =====
+function renderVideoList(){
+  const videos = S.get('videos', DEFAULT_VIDEOS);
+  const el = document.getElementById('videoList');
+  const statusIcon = {none:'',filming:'🎬',published:'✓'};
+  el.innerHTML = videos.map((v,i) => `
+    <div class="week-item">
+      <div class="week-row">
+        <span class="week-num">№${i+1}</span>
+        <span class="week-title">${v.title}</span>
+        <div class="week-status ${v.status==='published'?'published':v.status==='filming'?'filming':''}"
+          onclick="cycleStatus('${v.id}')"
+          title="Нажми чтобы изменить статус">
+          ${v.status==='published'?'✓':v.status==='filming'?'🎬':''}
+        </div>
+      </div>
+      <div class="week-deadline">${v.deadline}</div>
+    </div>
+  `).join('');
+}
+
+function cycleStatus(id){
+  const videos = S.get('videos', DEFAULT_VIDEOS);
+  const states = ['none','filming','published'];
+  const v = videos.find(x=>x.id===id);
+  if(!v) return;
+  const i = states.indexOf(v.status);
+  v.status = states[(i+1)%3];
+  if(v.status==='published'){
+    // update streak
+    const today = new Date().toISOString().split('T')[0];
+    const streak = S.get('streak_days', []);
+    if(!streak.includes(today)) streak.push(today);
+    S.set('streak_days', streak);
+    showToast('🎉 Опубликовано!');
+    // also increment manual count
+    const m = S.get('manual', {subs:0,views:0,hours:0,videos:0});
+    m.videos = (m.videos||0)+1;
+    S.set('manual', m);
+    loadManualInputs();
+  }
+  S.set('videos', videos);
+  renderVideoList();
+  updateDashStats();
+  renderStreak();
+}
+
+function addVideo(){
+  const title = prompt('Название видео:');
+  if(!title) return;
+  const videos = S.get('videos', DEFAULT_VIDEOS);
+  videos.push({id:'v'+Date.now(), title, deadline:'Дата не задана', status:'none'});
+  S.set('videos', videos);
+  renderVideoList();
+  showToast('Видео добавлено');
+}
+
+// ===== STREAK =====
+function renderStreak(){
+  const el = document.getElementById('streakGrid');
+  const streak = S.get('streak_days', []);
+  const today = new Date().toISOString().split('T')[0];
+  const days = [];
+  for(let i=29;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  el.innerHTML = days.map(d => {
+    const isToday = d===today;
+    const done = streak.includes(d);
+    const dd = new Date(d).getDate();
+    return `<div class="streak-dot${done?' done':''}${isToday?' today':''}" onclick="toggleStreak('${d}')" title="${d}">
+      <span class="streak-dot-day">${dd}</span>
+      ${done?'✓':''}
+    </div>`;
+  }).join('');
+
+  // calc streak
+  let s=0;
+  const sortedDays = [...streak].sort();
+  const todayIdx = days.indexOf(today);
+  for(let i=todayIdx;i>=0;i--){
+    if(streak.includes(days[i])) s++; else break;
+  }
+  document.getElementById('heroStreak').textContent = s;
+}
+
+function toggleStreak(date){
+  const streak = S.get('streak_days', []);
+  const i = streak.indexOf(date);
+  if(i>=0) streak.splice(i,1); else streak.push(date);
+  S.set('streak_days', streak);
+  renderStreak();
+}
+
+// ===== DASHBOARD STATS =====
+function updateDashStats(){
+  const m = S.get('manual', {subs:0,views:0,hours:0,videos:0});
+  const videos = S.get('videos', DEFAULT_VIDEOS);
+  const pubCount = videos.filter(v=>v.status==='published').length;
+
+  document.getElementById('heroVideos').textContent = m.videos || pubCount || 0;
+  const left = Math.max(0, 8 - (m.videos || pubCount || 0));
+  document.getElementById('heroLeft').textContent = left;
+
+  const subs = m.subs || 0;
+  const views = m.views || 0;
+  const hours = m.hours || 0;
+
+  document.getElementById('dashSubs').textContent = subs > 999 ? (subs/1000).toFixed(1)+'K' : subs || '—';
+  document.getElementById('dashViews').textContent = views > 999 ? (views/1000).toFixed(1)+'K' : views || '—';
+  document.getElementById('dashHours').textContent = hours || '—';
+
+  // monetization progress
+  const monPct = Math.round(Math.max(
+    Math.min(100, subs/10),
+    Math.min(100, hours/40)
+  ));
+  document.getElementById('dashMon').textContent = monPct + '%';
+  document.getElementById('dashMonLabel').textContent = subs < 1000 ? `${subs}/1000 подп.` : hours < 4000 ? `${hours}/4000 ч.` : 'достигнуто!';
+}
+
+// ===== MANUAL STATS =====
+function loadManualInputs(){
+  const m = S.get('manual', {subs:'',views:'',hours:'',videos:''});
+  document.getElementById('mSubs').value = m.subs || '';
+  document.getElementById('mViews').value = m.views || '';
+  document.getElementById('mHours').value = m.hours || '';
+  document.getElementById('mVideos').value = m.videos || '';
+  updateMonProgress();
+}
+
+function saveManual(){
+  const m = {
+    subs: parseInt(document.getElementById('mSubs').value)||0,
+    views: parseInt(document.getElementById('mViews').value)||0,
+    hours: parseInt(document.getElementById('mHours').value)||0,
+    videos: parseInt(document.getElementById('mVideos').value)||0,
+  };
+  S.set('manual', m);
+  updateMonProgress();
+  updateDashStats();
+}
+
+function updateMonProgress(){
+  const m = S.get('manual', {subs:0,hours:0});
+  const subs = m.subs || 0;
+  const hours = m.hours || 0;
+
+  const subsPct = Math.min(100, Math.round(subs/10));
+  const hoursPct = Math.min(100, Math.round(hours/40));
+
+  document.getElementById('moSubsBar').style.width = subsPct+'%';
+  document.getElementById('moHoursBar').style.width = hoursPct+'%';
+  document.getElementById('moSubsPct').textContent = `${subs}/1000`;
+  document.getElementById('moHoursPct').textContent = `${hours}/4000`;
+}
+
+// ===== YOUTUBE API =====
+function loadYTState(){
+  const key = S.get('yt_api_key','');
+  const cid = S.get('yt_channel_id','');
+  if(key && cid){
+    document.getElementById('ytApiKey').value = key;
+    document.getElementById('ytChannelId').value = cid;
+    const cached = S.get('yt_cached', null);
+    if(cached){
+      showYTData(cached);
+    }
+  }
+}
+
+async function connectYT(){
+  const key = document.getElementById('ytApiKey').value.trim();
+  const cid = document.getElementById('ytChannelId').value.trim();
+  const err = document.getElementById('ytError');
+  err.style.display='none';
+
+  if(!key || !cid){ err.textContent='Заполни оба поля'; err.style.display='block'; return; }
+
+  const btn = document.querySelector('#ytSetup .btn-primary');
+  btn.textContent = 'Загружаю...';
+  btn.disabled = true;
+
+  try{
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${cid}&key=${key}`;
+    const r = await fetch(url);
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error?.message || 'Ошибка API');
+    if(!data.items?.length) throw new Error('Канал не найден. Проверь Channel ID');
+
+    S.set('yt_api_key', key);
+    S.set('yt_channel_id', cid);
+    S.set('yt_cached', data.items[0]);
+    showYTData(data.items[0]);
+    showToast('YouTube подключён ✓');
+  }catch(e){
+    err.textContent = e.message;
+    err.style.display='block';
+  }finally{
+    btn.textContent='Подключить';
+    btn.disabled=false;
+  }
+}
+
+async function refreshYT(){
+  const key = S.get('yt_api_key','');
+  const cid = S.get('yt_channel_id','');
+  if(!key||!cid) return;
+  const btn = document.querySelector('.yt-refresh');
+  btn.textContent='...';
+  try{
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${cid}&key=${key}`;
+    const r = await fetch(url);
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error?.message);
+    S.set('yt_cached', data.items[0]);
+    showYTData(data.items[0]);
+    showToast('Обновлено');
+  }catch(e){
+    showToast('Ошибка: '+e.message);
+  }finally{
+    btn.textContent='↻ обновить';
+  }
+}
+
+function showYTData(item){
+  const s = item.statistics;
+  const sn = item.snippet;
+
+  document.getElementById('ytSetup').style.display='none';
+  const live = document.getElementById('ytLive');
+  live.style.display='block';
+  live.classList.add('shown');
+
+  document.getElementById('ytAvatarLetter').textContent = (sn.title||'Л')[0].toUpperCase();
+  document.getElementById('ytChannelName').textContent = sn.title||'—';
+  document.getElementById('ytChannelHandle').textContent = sn.customUrl||item.id;
+
+  const subs = parseInt(s.subscriberCount||0);
+  const views = parseInt(s.viewCount||0);
+  const vids = parseInt(s.videoCount||0);
+
+  document.getElementById('ytSubs').textContent = subs>999?(subs/1000).toFixed(1)+'K':subs;
+  document.getElementById('ytViews').textContent = views>999?(views/1000).toFixed(0)+'K':views;
+  document.getElementById('ytVidCount').textContent = vids;
+  document.getElementById('ytUpdated').textContent = new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+
+  // sync to manual
+  const m = S.get('manual', {});
+  m.subs = subs;
+  m.views = views;
+  m.videos = vids;
+  S.set('manual', m);
+  loadManualInputs();
+  updateDashStats();
+}
+
+// ===== NAVIGATION =====
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const btns = document.querySelectorAll('nav button');
+  const names = ['dash','videos','stats','links'];
+  btns[names.indexOf(name)]?.classList.add('active');
+}
+
+// ===== TOAST =====
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+// ===== CONFETTI =====
+function spawnConfetti(el){
+  const colors=['#ff4d00','#ffb800','#00c96e','#3b82f6','#fff'];
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  for(let i=0;i<12;i++){
+    const s = document.createElement('div');
+    s.className='spark';
+    s.style.cssText=`left:${cx}px;top:${cy}px;background:${colors[i%colors.length]};--tx:${(Math.random()-0.5)*120}px;--ty:${-(Math.random()*80+20)}px`;
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 900);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
